@@ -10,7 +10,7 @@ import config
 def kodiJsonCall(jsonDATA):
 	http = urllib3.PoolManager()
 	encoded_data = json.dumps(jsonDATA)
-	req = http.request(method='POST', url=JSONRPC_URL, headers={'Content-Type': 'application/json'}, body = encoded_data)
+	req = http.request(method='POST', url=config.JSONRPC_URL, headers={'Content-Type': 'application/json'}, body = encoded_data)
 	JREQ = json.loads(req.data.decode('utf-8'))
 	return JREQ
 
