@@ -45,7 +45,7 @@ class LCD:
 			return self._fontStore[size]
 		else:
 			# Instanciate the Font : 
-			newFont=ImageFont.truetype(sys.path[0] + "/" + config.FONT_FILE, size)
+			newFont=ImageFont.truetype( config.FONT_FILE, size)
 			self._fontStore[size]=newFont
 			return newFont
 
@@ -149,6 +149,7 @@ class LCD:
 		if self._setRef.getAudioSource() == "MOVIES":
 			self.drawLogo(sys.path[0] + "/res/movies.png")
 
+			# TODO : Call RPC to get current status :
 			# if we are playing a movie:
 			#    display the current playing time
 			#	 display the file name

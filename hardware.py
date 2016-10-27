@@ -3,46 +3,6 @@
 #
 
 
-#http://192.168.0.160:8080/jsonrpc?Input.Left
-#http://192.168.0.160:8080/jsonrpc?Input.Right
-
-# http://192.168.0.160:8080/jsonrpc?Input.Up
-# http://192.168.0.160:8080/jsonrpc?Input.Down# 
-
-# http://192.168.0.160:8080/jsonrpc?Input.Select
-# http://192.168.0.160:8080/jsonrpc?Input.Back# 
-
-# http://192.168.0.160:8080/jsonrpc?Input.Home# 
-# 
-
-# 							Player.PlayPause 
-# 							Player.Stop
-# 							
-# http://192.168.0.160:8080/jsonrpc?Application.SetMute
-# 		
-
-# # CURL PYTHON ? 
-# PYCURL 
-# 
-# # Simple requests :
-# import requests
-# r = requests.get("http://example.com/foo/bar")
-# 
-# 
-# 
-# # Recupere la liste de tous les settings :
-# curl -v -H "Content-type: application/json" -X POST -d '{"jsonrpc":"2.0","method":"Settings.GetSettings","id":1}' http://localhost:8080/jsonrpc > sett
-# 
-# # definir les parametres
-# 
-# curl -v -H "Content-type: application/json" -X POST -d '{"jsonrpc":"2.0","method":"Settings.GetSettingValue", "params":{"setting":"audiooutput.audiodevice","value":""},"id":1}' http://localhost:8080/jsonrpc
-# curl -v -H "Content-type: application/json" -X POST -d '{"jsonrpc":"2.0","method":"Settings.GetSettingValue", "params":{"setting":"audiooutput.channels","value":1},"id":1}' http://localhost:8080/jsonrpc
-# 
-# 
-# guisettings.xml > stereoupmix = false
-# http://effbot.org/pyfaq/how-can-i-mimic-cgi-form-submission-method-post.htm
-
-
 import RPi.GPIO as GPIO
 import config
 import os
@@ -57,7 +17,6 @@ lastEncoded=0
 
 def RotaryTurn(term):
 	global counts
-	#counts=0
 	global Encoder_A_old
 	global Encoder_B_old
 	global EncoderSum

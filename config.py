@@ -23,7 +23,7 @@ LCD_BRIGHT_POWER = 100
 LCD_BRIGHT_IDLE = 30
 
 # Font selection
-FONT_FILE = "res/ub.ttf"
+FONT_FILE = sys.path[0] + "/res/ub.ttf"
 
 HIDRAW_FILE = "/dev/hidraw1"
 JSONRPC_URL = "http://127.0.0.1:8080/jsonrpc"
@@ -49,7 +49,7 @@ VOLUME_SCALE = "LINEAR" # Possible values are LINEAR, LOG, EXP
 VOLUME_MINVAL = 0
 VOLUME_MAXVAL = 197
 
-SETTINGSFILE="mySettingsFile.set"
+SETTINGSFILE=sys.path[0] + "/mySettingsFile.set"
 
 
 # Keys definitions :
