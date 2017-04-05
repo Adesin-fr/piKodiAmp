@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 """This software is designed to be used with :
 	- a Raspberry PI
 	- an Audio Amp, driven with a relay
@@ -15,6 +15,11 @@
 			while outside the settings menu, ARROWS, ESC and OK keys are transmitted to KODI
 
 
+	Install dependencies with :
+	sudo apt-get install python3-numpy python3-pil
+
+	Install SPI :
+	in /boot/config.txt, ensure that dtparam=spi=on is not commented.
 
 
 
@@ -28,6 +33,7 @@ import mpd
 import libs.config
 from libs.hardware import *
 from libs.lcd import LCD
+from libs.settings import *
 
 
 # Global variables

@@ -3,13 +3,13 @@
 #
 
 import pickle
-import config
+from .config import *
 import subprocess
 
 class Settings:
 
 	def __init__(self):
-		
+
 		# Init variables
 		self._volume = 0
 		self._audioSource = "MUSIC"
@@ -18,13 +18,13 @@ class Settings:
 		self.loadFromFile()
 
 	def saveToFile(self):
-		with open(config.SETTINGSFILE, 'wb') as fichier:
+		with open(SETTINGSFILE, 'wb') as fichier:
 			mon_pickler = pickle.Pickler(fichier)
 			mon_pickler.dump(self.__dict__)
 
 	def loadFromFile(self):
 		try:
-			with open(config.SETTINGSFILE, 'rb') as fichier:
+			with open(SETTINGSFILE, 'rb') as fichier:
 				mon_depickler = pickle.Unpickler(fichier)
 				tmp_dict = mon_depickler.load()
 				self.__dict__.update(tmp_dict)

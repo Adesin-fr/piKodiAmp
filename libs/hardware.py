@@ -5,7 +5,7 @@
 
 
 import RPi.GPIO as GPIO
-import config
+from .config import *
 import os
 import io
 import time
@@ -24,8 +24,8 @@ def RotaryTurn(term):
 	global EncoderSum
 	global lastEncoded
 
-	MSB = GPIO.input(config.ROTARY_PIN_1)  # stores the value of the encoders at time of interrupt
-	LSB = GPIO.input(config.ROTARY_PIN_2)
+	MSB = GPIO.input(ROTARY_PIN_1)  # stores the value of the encoders at time of interrupt
+	LSB = GPIO.input(ROTARY_PIN_2)
 
 	encoded = (MSB << 1) | LSB #converting the 2 pin value to single number
 	EncoderSum  = (lastEncoded << 2) | encoded #
@@ -41,7 +41,7 @@ def RotaryTurn(term):
 def RotaryPush(channel):
 	global PushButtonState
 	# look for a low-to-high on channel A
-	if GPIO.input(config.ROTARY_PIN_SW) == False :
+	if GPIO.input(ROTARY_PIN_SW) == False :
 		PushButtonState="PUSHED"
 
 
@@ -55,24 +55,24 @@ class Hardware:
 		GPIO.setwarnings(False)
 
 		# set LED pin output :
-		GPIO.setup(config.LCD_LED, GPIO.OUT)
+		GPIO.setup(LCD_LED, GPIO.OUT)
 		# set LED_PWM object
-		self.LED_PWM = GPIO.PWM(config.LCD_LED, 200)
-		self.LED_PWM.start(config.LCD_BRIGHT_STANDBY)
+		self.LED_PWM = GPIO.PWM(LCD_LED, 200)
+		self.LED_PWM.start(LCD_BRIGHT_STANDBY)
 
 		# Set RELAY pin to output:
-		GPIO.setup(config.POWER_RELAY_PIN, GPIO.OUT)
+		GPIO.setup(POWER_RELAY_PIN, GPIO.OUT)
 		self.setPowerOff()
 
 		# Set Rotary switch pins :
-		GPIO.setup(config.ROTARY_PIN_SW, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-		GPIO.setup(config.ROTARY_PIN_1, GPIO.IN)
-		GPIO.setup(config.ROTARY_PIN_2, GPIO.IN)
+		GPIO.setup(ROTARY_PIN_SW, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(ROTARY_PIN_1, GPIO.IN)
+		GPIO.setup(ROTARY_PIN_2, GPIO.IN)
 
 		# Rotary interrupt functions
-		GPIO.add_event_detect(config.ROTARY_PIN_1, GPIO.BOTH, callback=RotaryTurn)
-		GPIO.add_event_detect(config.ROTARY_PIN_2, GPIO.BOTH, callback=RotaryTurn)
-		GPIO.add_event_detect(config.ROTARY_PIN_SW, GPIO.FALLING, callback=RotaryPush, bouncetime=200)
+		GPIO.add_event_detect(ROTARY_PIN_1, GPIO.BOTH, callback=RotaryTurn)
+		GPIO.add_event_detect(ROTARY_PIN_2, GPIO.BOTH, callback=RotaryTurn)
+		GPIO.add_event_detect(ROTARY_PIN_SW, GPIO.FALLING, callback=RotaryPush, bouncetime=200)
 		self.oldCount=0
 
 
@@ -83,15 +83,15 @@ class Hardware:
 		self.audioSource="MUSIC"
 
 		# set the current audio output device :
-		self.AudioDevice = config.AMP_ON_audio_device
+		self.AudioDevice = AMP_ON_audio_device
 
 		# Open HID RAW file
 		try:
-			self.hidfile = os.open(config.HIDRAW_FILE, os.O_RDONLY | os.O_NONBLOCK)
+			self.hidfile = os.open(HIDRAW_FILE, os.O_RDONLY | os.O_NONBLOCK)
 
 			self.hid_fio = io.FileIO(self.hidfile, closefd = False)
 		except Exception as e:
-			print("Could not open HIDRAW device " + config.HIDRAW_FILE)
+			print("Could not open HIDRAW device " + HIDRAW_FILE)
 
 
 	def setPowerOn(self):
@@ -99,22 +99,22 @@ class Hardware:
 		self.isPoweredOn=True
 
 		# Set relay ON
-		GPIO.output(config.POWER_RELAY_PIN, GPIO.LOW)
+		GPIO.output(POWER_RELAY_PIN, GPIO.LOW)
 		# Change LCD Brightness
-		self.setLCDBrightness(config.LCD_BRIGHT_POWER)
+		self.setLCDBrightness(LCD_BRIGHT_POWER)
 
 		# Change KODI audio setting to output to USB sound card
-		self.setAudioOutputDevice(config.AMP_ON_audio_device)
+		self.setAudioOutputDevice(AMP_ON_audio_device)
 
 
 
 	def setPowerOff(self):
 		# Set relay OFF
-		GPIO.output(config.POWER_RELAY_PIN, GPIO.HIGH)
-		self.setLCDBrightness(config.LCD_BRIGHT_STANDBY)
+		GPIO.output(POWER_RELAY_PIN, GPIO.HIGH)
+		self.setLCDBrightness(LCD_BRIGHT_STANDBY)
 
 		# Change KODI audio setting to output to HDMI
-		self.setAudioOutputDevice(config.AMP_OFF_audio_device)
+		self.setAudioOutputDevice(AMP_OFF_audio_device)
 
 		# set current power State
 		self.isPoweredOn=False
@@ -130,11 +130,11 @@ class Hardware:
 
 
 	def setLCDBrightPower(self):
-		self.setLCDBrightness(config.LCD_BRIGHT_POWER)
+		self.setLCDBrightness(LCD_BRIGHT_POWER)
 
 
 	def setLCDBrightIdle(self):
-		self.setLCDBrightness(config.LCD_BRIGHT_IDLE)
+		self.setLCDBrightness(LCD_BRIGHT_IDLE)
 
 
 	def setVolume(self, newVol):
@@ -159,9 +159,9 @@ class Hardware:
 					while i<cnt:
 						buf +=chr(a[i])
 						i+=1
-						if (buf in config.keys):
+						if (buf in keys):
 							# return the corresponding key name
-							return config.keys[buf]
+							return keys[buf]
 			except Exception as e:
 				print(e)
 

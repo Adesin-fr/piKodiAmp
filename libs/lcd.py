@@ -4,11 +4,11 @@
 import Adafruit_ILI9341 as TFT
 import RPi.GPIO as GPIO
 import Adafruit_GPIO.SPI as SPI
-import config
-import Image
-import ImageFont
-import ImageDraw
-import time
+from .config import config
+from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw
+from PIL import time
 
 
 class LCD:
@@ -26,7 +26,7 @@ class LCD:
 		self.imgHor = Image.new("RGBA", (320, 240), (0,0,0,0))
 
 		# Create TFT LCD display class.
-		self.disp = TFT.ILI9341(config.LCD_DC, rst=config.LCD_RST, spi=SPI.SpiDev(config.LCD_SPI_PORT, config.LCD_SPI_DEVICE, max_speed_hz=64000000))
+		self.disp = TFT.ILI9341(LCD_DC, rst=LCD_RST, spi=SPI.SpiDev(LCD_SPI_PORT, LCD_SPI_DEVICE, max_speed_hz=64000000))
 
 		# Initialize display.
 		self.disp.begin()
@@ -35,14 +35,14 @@ class LCD:
 		self.pileDisplayFunc=[]
 
 	def getFont(self, size):
-		""" Check if the asked size is in the font store. 
+		""" Check if the asked size is in the font store.
 		return it if it exists
 		"""
 		if size in self.fontStore:
 			return self.fontStore[size]
 		else:
-			# Instanciate the Font : 
-			newFont=ImageFont.truetype(config.FONT_FILE, size)
+			# Instanciate the Font :
+			newFont=ImageFont.truetype(FONT_FILE, size)
 			self.fontStore[size]=newFont
 			return newFont
 
@@ -58,7 +58,7 @@ class LCD:
 			value=maxValue
 
 		dr=ImageDraw.Draw(self.imgHor)
-		# Draw the outline rectangle 
+		# Draw the outline rectangle
 		dr.rectangle((xPos, yPos, xPos+width, yPos+height), outline=borderColor)
 		# Draw the fill :
 		dr.rectangle((xPos+1, yPos+1, xPos+(width*value/maxValue)-1, yPos+height-1), outline=fillColor, fill=fillColor)
@@ -69,14 +69,14 @@ class LCD:
 		Color can be specified, white by default"""
 		#Get rendered font width and height
 		draw = ImageDraw.Draw(self.imgHor)
-		myFont = self.getFont(size)		
+		myFont = self.getFont(size)
 		draw.text(position, text, font=myFont, fill=color)
 
 	def drawTextCentered(self, text, size, fill=(255,255,255)):
 		"""Draw text centered on screen with specified size
 		Color can be specified"""
 		draw = ImageDraw.Draw(self.imgHor)
-		myFont = self.getFont(size)		
+		myFont = self.getFont(size)
 
 		padOffset= int(size/6)
 
@@ -84,7 +84,7 @@ class LCD:
 		ftSize = draw.textsize(text, myFont)
 
 		xPos = (self.imgHor.size[0]-ftSize[0])/2
-		yPos = (self.imgHor.size[1]-ftSize[1] - padOffset)/2 
+		yPos = (self.imgHor.size[1]-ftSize[1] - padOffset)/2
 
 		# Center the font around given point :
 		draw.text((xPos,yPos), text, font=myFont, fill=fill)
@@ -118,7 +118,7 @@ class LCD:
 
 
 	def showVolume(self):
-		"""Show a big volume on screen, centered""" 
+		"""Show a big volume on screen, centered"""
 
 		# Draw text :			      POSY, POSX
 		self.drawTextCentered( str(self.hwref.volume),  200)
@@ -144,7 +144,7 @@ class LCD:
 
 
 	def setNewDisplayFunction(self, newFunction):
-		# keep previous function name in pile : 
+		# keep previous function name in pile :
 		self.pileDisplayFunc.append(self.displayFunction)
 		self.displayFunction=newFunction
 
@@ -179,6 +179,6 @@ class LCD:
 
 
 		rectangle=(imgX, imgY, imgX+image.size[0], self.imgHor.size[1]-10)
-		
+
 		#self.imgHor.paste(imgResize, rectangle)
 		self.imgHor.paste(image, (imgX, imgY))
