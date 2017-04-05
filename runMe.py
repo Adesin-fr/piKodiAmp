@@ -14,13 +14,15 @@
 		While in the SETTINGS menu, no key-presses are transmitted to KODI,
 			while outside the settings menu, ARROWS, ESC and OK keys are transmitted to KODI
 
+	LGTV IP should be set on line :
+
+	webos_client = WebOsClient('192.168.0.112')
 
 	Install dependencies with :
 	sudo apt-get install python3-numpy python3-pil
 
 	Install SPI :
 	in /boot/config.txt, ensure that dtparam=spi=on is not commented.
-
 
 
 
@@ -34,6 +36,9 @@ import libs.config
 from libs.hardware import *
 from libs.lcd import LCD
 from libs.settings import *
+from pylgtv import WebOsClient
+
+webosClient = WebOsClient('192.168.0.112')
 
 
 # Global variables
@@ -136,5 +141,6 @@ while True:
 
 	# Check if TV is alive and source is Live TV.
 	# if it is, we turn on and change to TV source
+	print(webosClient.get_input())
 
 	time.sleep(0.05)
