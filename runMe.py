@@ -37,8 +37,11 @@ from libs.hardware import *
 from libs.lcd import LCD
 from libs.settings import *
 from pylgtv import WebOsClient
+from libs.ping import Ping
 
-webosClient = WebOsClient('192.168.0.112')
+LGTVIP = '192.168.0.112'
+
+webosClient = WebOsClient(LGTVIP)
 
 
 # Global variables
@@ -141,6 +144,7 @@ while True:
 
 	# Check if TV is alive and source is Live TV.
 	# if it is, we turn on and change to TV source
-	print(webosClient.get_input())
+	if (Ping(LGTVIP)):
+		print(webosClient.get_input())
 
 	time.sleep(0.05)

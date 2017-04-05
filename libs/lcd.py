@@ -4,11 +4,11 @@
 import Adafruit_ILI9341 as TFT
 import RPi.GPIO as GPIO
 import Adafruit_GPIO.SPI as SPI
-from .config import config
+from .config import *
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
-from PIL import time
+import time
 
 
 class LCD:
