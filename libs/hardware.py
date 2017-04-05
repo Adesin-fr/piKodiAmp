@@ -3,6 +3,7 @@
 #
 
 
+
 import RPi.GPIO as GPIO
 import config
 import os
@@ -17,6 +18,7 @@ lastEncoded=0
 
 def RotaryTurn(term):
 	global counts
+	#counts=0
 	global Encoder_A_old
 	global Encoder_B_old
 	global EncoderSum
@@ -28,7 +30,7 @@ def RotaryTurn(term):
 	encoded = (MSB << 1) | LSB #converting the 2 pin value to single number
 	EncoderSum  = (lastEncoded << 2) | encoded #
 
-	if EncoderSum == 0b1101 or EncoderSum == 0b0100 or EncoderSum == 0b0010 or EncoderSum == 0b1011: 
+	if EncoderSum == 0b1101 or EncoderSum == 0b0100 or EncoderSum == 0b0010 or EncoderSum == 0b1011:
 		counts += 1
 	if EncoderSum == 0b1110 or EncoderSum == 0b0111 or EncoderSum == 0b0001 or EncoderSum == 0b1000:
 		counts -= 1
@@ -47,7 +49,7 @@ def RotaryPush(channel):
 class Hardware:
 
 	def __init__(self):
-		# Init GPIO 
+		# Init GPIO
 		GPIO.setmode(GPIO.BCM)
 		# Disable warnings on GPIO already used...
 		GPIO.setwarnings(False)
@@ -55,7 +57,7 @@ class Hardware:
 		# set LED pin output :
 		GPIO.setup(config.LCD_LED, GPIO.OUT)
 		# set LED_PWM object
-		self.LED_PWM = GPIO.PWM(config.LCD_LED, 360)
+		self.LED_PWM = GPIO.PWM(config.LCD_LED, 200)
 		self.LED_PWM.start(config.LCD_BRIGHT_STANDBY)
 
 		# Set RELAY pin to output:
@@ -76,7 +78,7 @@ class Hardware:
 
 		# get current Volume (from settings file):
 		self.volume=2
-		
+
 		# set current audio source :
 		self.audioSource="MUSIC"
 
@@ -84,13 +86,10 @@ class Hardware:
 		self.AudioDevice = config.AMP_ON_audio_device
 
 		# Open HID RAW file
-		self.hidPortOpened = False
-		
 		try:
 			self.hidfile = os.open(config.HIDRAW_FILE, os.O_RDONLY | os.O_NONBLOCK)
 
 			self.hid_fio = io.FileIO(self.hidfile, closefd = False)
-			self.hidPortOpened = True
 		except Exception as e:
 			print("Could not open HIDRAW device " + config.HIDRAW_FILE)
 
@@ -103,7 +102,7 @@ class Hardware:
 		GPIO.output(config.POWER_RELAY_PIN, GPIO.LOW)
 		# Change LCD Brightness
 		self.setLCDBrightness(config.LCD_BRIGHT_POWER)
-		
+
 		# Change KODI audio setting to output to USB sound card
 		self.setAudioOutputDevice(config.AMP_ON_audio_device)
 
@@ -138,16 +137,22 @@ class Hardware:
 		self.setLCDBrightness(config.LCD_BRIGHT_IDLE)
 
 
+	def setVolume(self, newVol):
+		print("volume Changed to " + str(newVol))
+
+		self.volume=newVol
+
+		#subprocess.call(['/usr/bin/amixer -c ' + str(self.AudioDevice) + ' sset Speaker ' + str(newVol) + '%'])
+
 	def handleInputEvents(self):
 		global counts
 		global PushButtonState
 
 		# Check for events on HID RAW :
-		if self.hidPortOpened:
-			a = bytearray(100)
+		if 'hid_fio' in locals():
 			try:
-				cnt = self.hid_fio.readinto(a)
-				if type(cnt) is int :
+				cnt = hid_fio .readinto(a)
+				if cnt > 0:
 					buf=""
 					i = 0
 					# We got an event. Trim it, transform it to a string, and then search for it in the KEYS dictionnary
@@ -155,7 +160,7 @@ class Hardware:
 						buf +=chr(a[i])
 						i+=1
 						if (buf in config.keys):
-							# return the corresponding key name 
+							# return the corresponding key name
 							return config.keys[buf]
 			except Exception as e:
 				print(e)
@@ -163,7 +168,7 @@ class Hardware:
 		if PushButtonState!="" :
 			PushButtonState=""
 			return "POWER"
-	
+
 		if self.oldCount != counts :
 			delta = self.oldCount-counts
 			self.oldCount = counts

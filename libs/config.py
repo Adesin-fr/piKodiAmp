@@ -1,61 +1,37 @@
-import sys
-
 #
-# Configuration file 
+# Configuration file
 #
 
 # Pins for LCD
-LCD_DC = 24
-LCD_RST = 25
+LCD_DC = 24				# GPIO Pin 18
+LCD_RST = 25			# GPIO Pin 22
 LCD_SPI_PORT = 0
 LCD_SPI_DEVICE = 0
-LCD_LED  = 21
+LCD_LED  = 21			# GPIO Pin 40
 
-# Pin for POWER ON Relay 
-POWER_RELAY_PIN = 20
+# Pin for POWER ON Relay
+POWER_RELAY_PIN = 20	# GPIO Pin 38
 
 # Pins for Rotary switch
 ROTARY_PIN_SW = 13		# GPIO Pin 33
 ROTARY_PIN_1 = 19		# GPIO Pin 35
 ROTARY_PIN_2 = 26		# GPIO Pin 37
 
-# Set LCD brightness levels 
+# Set LCD brightness levels
 LCD_BRIGHT_STANDBY = 5
 LCD_BRIGHT_POWER = 100
 LCD_BRIGHT_IDLE = 30
 
 # Font selection
-FONT_FILE = sys.path[0] + "/res/ub.ttf"
+FONT_FILE = "res/ub.ttf"
 
-HIDRAW_FILE = "/dev/hidraw1"
-JSONRPC_URL = "http://127.0.0.1:8080/jsonrpc"
+HIDRAW_FILE = "/dev/hidraw2"
 
-#
-# Audio Settings 
-# 
-# device names we will ask KODI to use.
-AMP_ON_audio_device="ALSA:@:CARD=Device,DEV=0"
-AMP_OFF_audio_device="PI:HDMI"
-
-# Device number identifying the sound card which we should change the volume :
-SOUNDCARD_NUMBER = 1
-SOUNDCARD_CHANNELS = ["Front Left","Front Right","Rear Left","Rear Right","Front Center","Woofer"] 
-# set channel volume : 
-# amixer -c1 sset Speaker Front Center 100%
-# or 
-# amixer -c1 sset Speaker Front Center 197
-
-VOLUME_STEPS = 32
-VOLUME_AMIXER_CTL_NAME = "Speaker"
-VOLUME_SCALE = "LINEAR" # Possible values are LINEAR, LOG, EXP
-VOLUME_MINVAL = 0
-VOLUME_MAXVAL = 197
-
-SETTINGSFILE=sys.path[0] + "/mySettingsFile.set"
+AMP_ON_audio_device="Usb sound card...."
+AMP_OFF_audio_device="HDMI sound card...."
 
 
-# Keys definitions :
-
+# IR Keys definitions :
 
 keys=dict()
 

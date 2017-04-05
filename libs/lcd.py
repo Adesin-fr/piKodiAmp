@@ -5,48 +5,45 @@ import Adafruit_ILI9341 as TFT
 import RPi.GPIO as GPIO
 import Adafruit_GPIO.SPI as SPI
 import config
-from PIL import Image
-from PIL import ImageFont
-from PIL import ImageDraw
+import Image
+import ImageFont
+import ImageDraw
 import time
-import sys 
+
 
 class LCD:
 
-	def __init__(self, SettingsObjectRef):
+	def __init__(self, HWObjref):
 		"""The LCD class is initialized with the HW object passed in parameter.
 		The HW object is needed to know the current volume, and other values so they can be displayed without needed to pass them.
 		"""
 
-		self._setRef = SettingsObjectRef
+		self.hwref = HWObjref
 
-		self._displayFunction = "showClock"
+		self.displayFunction = "showClock"
+		#self.displayFunction = "showVolume"
 
-		self._imgHor = Image.new("RGBA", (320, 240), (0,0,0,0))
+		self.imgHor = Image.new("RGBA", (320, 240), (0,0,0,0))
 
 		# Create TFT LCD display class.
-		self._disp = TFT.ILI9341(config.LCD_DC, rst=config.LCD_RST, spi=SPI.SpiDev(config.LCD_SPI_PORT, config.LCD_SPI_DEVICE, max_speed_hz=64000000))
+		self.disp = TFT.ILI9341(config.LCD_DC, rst=config.LCD_RST, spi=SPI.SpiDev(config.LCD_SPI_PORT, config.LCD_SPI_DEVICE, max_speed_hz=64000000))
 
 		# Initialize display.
-		self._disp.begin()
+		self.disp.begin()
 
-		self._fontStore=dict()
-		self._pileDisplayFunc=[]
-
-		# LCD Refresh handling
-		self._to_display = ""
-		self._last_displayed = ""
+		self.fontStore=dict()
+		self.pileDisplayFunc=[]
 
 	def getFont(self, size):
 		""" Check if the asked size is in the font store. 
 		return it if it exists
 		"""
-		if size in self._fontStore:
-			return self._fontStore[size]
+		if size in self.fontStore:
+			return self.fontStore[size]
 		else:
 			# Instanciate the Font : 
-			newFont=ImageFont.truetype( config.FONT_FILE, size)
-			self._fontStore[size]=newFont
+			newFont=ImageFont.truetype(config.FONT_FILE, size)
+			self.fontStore[size]=newFont
 			return newFont
 
 
@@ -60,7 +57,7 @@ class LCD:
 		if value>maxValue :
 			value=maxValue
 
-		dr=ImageDraw.Draw(self._imgHor)
+		dr=ImageDraw.Draw(self.imgHor)
 		# Draw the outline rectangle 
 		dr.rectangle((xPos, yPos, xPos+width, yPos+height), outline=borderColor)
 		# Draw the fill :
@@ -71,14 +68,14 @@ class LCD:
 		"""Draw a text on screen, at specified top-left corner, and specified size
 		Color can be specified, white by default"""
 		#Get rendered font width and height
-		draw = ImageDraw.Draw(self._imgHor)
+		draw = ImageDraw.Draw(self.imgHor)
 		myFont = self.getFont(size)		
 		draw.text(position, text, font=myFont, fill=color)
 
 	def drawTextCentered(self, text, size, fill=(255,255,255)):
 		"""Draw text centered on screen with specified size
 		Color can be specified"""
-		draw = ImageDraw.Draw(self._imgHor)
+		draw = ImageDraw.Draw(self.imgHor)
 		myFont = self.getFont(size)		
 
 		padOffset= int(size/6)
@@ -86,33 +83,31 @@ class LCD:
 		# Get rendered font width and height.
 		ftSize = draw.textsize(text, myFont)
 
-		xPos = (self._imgHor.size[0]-ftSize[0])/2
-		yPos = (self._imgHor.size[1]-ftSize[1] - padOffset)/2 
+		xPos = (self.imgHor.size[0]-ftSize[0])/2
+		yPos = (self.imgHor.size[1]-ftSize[1] - padOffset)/2 
 
 		# Center the font around given point :
 		draw.text((xPos,yPos), text, font=myFont, fill=fill)
+		draw.point((xPos,yPos), fill=fill)
+
 
 
 	def doDisplay(self):
 		"""This function is called to refresh and render the screen.
 		It first clear the screen, then call the current display function.
 		"""
-		
+
 		self.clear()
 
 		# Call the needed function
-		getattr(self, self._displayFunction)()
+		getattr(self, self.displayFunction)()
 
-		# Only refresh display if we need if (otherwise, it flickers...)
-		if self._to_display != self._last_displayed :
-			self._last_displayed = self._to_display
-
-			self._disp.display(self._imgHor.rotate(90))
+		self.disp.display(self.imgHor.rotate(90))
 
 	def clear(self):
 		""" Clear the screen buffer
 		"""
-		self._imgHor = Image.new("RGBA", (320, 240), (0,0,0,0))
+		self.imgHor = Image.new("RGBA", (320, 240), (0,0,0,0))
 
 
 	def showClock(self):
@@ -121,35 +116,27 @@ class LCD:
 		# Draw text :			      POSY, POSX
 		self.drawTextCentered( sTime,  100)
 
-		self._to_display = sTime
-
 
 	def showVolume(self):
 		"""Show a big volume on screen, centered""" 
 
 		# Draw text :			      POSY, POSX
-		self.drawTextCentered( str(self._setRef.getVolume()),  200)
-
-		self._to_display = "Volume " + str(self._setRef.getVolume()) 
+		self.drawTextCentered( str(self.hwref.volume),  200)
 
 
 	def showMainScreen(self):
 		"""Show the main screen"""
 		self.clear()
 
-		self._to_display = "MainScreen" + self._setRef.getAudioSource()
-
 		# Show a logo on top-right corner.
-		if self._setRef.getAudioSource() == "MUSIC":
-			self.drawBigLogo(sys.path[0] + "/res/bluetooth.png")
+		if self.hwref.audioSource == "MUSIC":
+			self.drawBigLogo("res/bluetooth.png")
 
-		if self._setRef.getAudioSource() == "TV":
-			self.drawBigLogo(sys.path[0] + "/res/tv.png")
+		if self.hwref.audioSource == "TV":
+			self.drawBigLogo("res/tv.png")
 
-		if self._setRef.getAudioSource() == "MOVIES":
-			self.drawLogo(sys.path[0] + "/res/movies.png")
-
-			# TODO : Call RPC to get current status :
+		if self.hwref.audioSource == "MOVIES":
+			self.drawLogo("res/movies.png")
 			# if we are playing a movie:
 			#    display the current playing time
 			#	 display the file name
@@ -158,16 +145,14 @@ class LCD:
 
 	def setNewDisplayFunction(self, newFunction):
 		# keep previous function name in pile : 
-		self._pileDisplayFunc.append(self._displayFunction)
-		self._displayFunction=newFunction
+		self.pileDisplayFunc.append(self.displayFunction)
+		self.displayFunction=newFunction
 
 
 	def setPreviousDisplayFunction(self):
 		# If we got something to depile :
-		if len(self._displayFunction)>1 :
-			self._displayFunction=self._pileDisplayFunc.pop()
-			# Save settings file :
-			self._setRef.saveToFile()
+		if len(self.displayFunction)>1 :
+			self.displayFunction=self.pileDisplayFunc.pop()
 
 
 	def drawLogo(self, logoFile):
@@ -175,7 +160,7 @@ class LCD:
 		image = Image.open(logoFile)
 		imageRatio=image.size()
 		rectangle=(x, y, x, y)
-		self._imgHor.paste(image, rectangle)
+		self.imgHor.paste(image, rectangle)
 
 
 	def drawBigLogo(self, logoFile):
@@ -184,16 +169,16 @@ class LCD:
 
 		# Top and Bottom margin = 10 px
 
-		destHeight=self._imgHor.size[1]-20
-		destWidth=int(image.size[0]/image.size[1]*destHeight)
+		destHeight=self.imgHor.size[1]-20
+		destWidth=image.size[0]/image.size[1]*destHeight
 
-		imgX=int((self._imgHor.size[0]-image.size[0])/2)
+		imgX=(self.imgHor.size[0]-image.size[0])/2
 		imgY=10
 
 		imgResize = image.resize((destWidth, destHeight) )
 
 
-		rectangle=(imgX, imgY, imgX+image.size[0], self._imgHor.size[1]-10)
+		rectangle=(imgX, imgY, imgX+image.size[0], self.imgHor.size[1]-10)
 		
-		#self._imgHor.paste(imgResize, rectangle)
-		self._imgHor.paste(image, (imgX, imgY))
+		#self.imgHor.paste(imgResize, rectangle)
+		self.imgHor.paste(image, (imgX, imgY))

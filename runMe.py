@@ -1,17 +1,17 @@
 #!/usr/bin/python
 """This software is designed to be used with :
 	- a Raspberry PI
-	- an Audio Amp, driven with a relay 
+	- an Audio Amp, driven with a relay
 	- a LCD Screen (ILI9341 or 40, 320x240) on SPI
 	- KODI running on the PI
 	- an USB IR Remonte controller, which should return decoded events on /dev/hidrawX
 		(This part should be easily changed, by modifying the Hardware.py file...)
 
-	The POWER key of the remote would turn on the AMP and the LCD Screen. 
+	The POWER key of the remote would turn on the AMP and the LCD Screen.
 	Volume keys would ...change the volume !
 	The MUSIC, MOVIES, TV keys would select which audio source should be selected...
 	The SETTINGS key would enter a main menu, allowing to change the balance, fader, subwoofer settings...
-		While in the SETTINGS menu, no key-presses are transmitted to KODI, 
+		While in the SETTINGS menu, no key-presses are transmitted to KODI,
 			while outside the settings menu, ARROWS, ESC and OK keys are transmitted to KODI
 
 
@@ -19,19 +19,18 @@
 
 
 
-	DETECTION D'un CD/DVD : blkid /dev/sr0 
+	DETECTION D'un CD/DVD : blkid /dev/sr0
 
 """
 import time
-import config
 import threading
-import kodirpc
-from settings import Settings
-from hardware import *
-from lcd import LCD
+import mpd
+import libs.config
+from libs.hardware import *
+from libs.lcd import LCD
 
 
-# Global variables 
+# Global variables
 lastRefreshTime = time.clock()
 isInMenu = False
 # End Global variables
@@ -51,15 +50,18 @@ def changeVolume(newVolume):
 	"""
 	sets.setVolume(newVolume)
 	lcd.setNewDisplayFunction("showVolume")
-	threading.Timer(3, lcd.setPreviousDisplayFunction).start() 
+	threading.Timer(3, lcd.setPreviousDisplayFunction).start()
 
 
 # Define a timer to reset LCD Brightness
 LCDBrightTimer = threading.Timer(3, hw.setLCDBrightIdle)
 
+# Define a MPD client :
+mpdClient = mpd.MPDClient(use_unicode=True)
+mpdClient.connect("localhost", 6600)
 
 #
-# Main loop : 
+# Main loop :
 #
 
 while True:
@@ -68,10 +70,10 @@ while True:
 	# We cannot do better than 10 fps with python LCD driving...
 	# We could do better with FBTFT driver....
 
-	if (time.clock() + 0.1) > lastRefreshTime : 
-		lastRefreshTime = time.clock()		
+	if (time.clock() + 0.1) > lastRefreshTime :
+		lastRefreshTime = time.clock()
 		lcd.doDisplay()
-	
+
 
 	# Handle Input events :
 	eventName=hw.handleInputEvents()
@@ -114,12 +116,19 @@ while True:
 			if eventName == "MUSIC":
 				if sets.getAudioSource != eventName :
 					sets.setAudioSource(eventName)
-					
-		
+
+
 			if isInMenu == False :
 				if eventName == "KEY_LEFT" :
 					hw.sendKey("")
 		else:
 			kodirpc.kodiSendKey(eventName)
-			
-	time.sleep(0.1)
+
+
+	# Check if MPD has changed state (STOPPED/PAUSED > Playing)
+	# if it did, we turn on and change to MUSIC source
+
+	# Check if TV is alive and source is Live TV.
+	# if it is, we turn on and change to TV source
+
+	time.sleep(0.05)
